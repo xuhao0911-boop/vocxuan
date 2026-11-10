@@ -42,7 +42,7 @@ class CloudSync {
    }catch(error){this.status(navigator.onLine?'暂时离线':'待联网同步','pending',error.message);}finally{this.busy=false;if(this.cache.dirty&&!this.conflict)this.schedule();}}
  showConflict(remote){this.options.pause();this.conflict=remote;this.backup(this.cache.json,'同步冲突时的本机草稿');this.lock(true);this.status('需要选择进度','error');
    const panel=document.getElementById('sync-panel');panel.replaceChildren();panel.hidden=false;const card=document.createElement('section');card.className='sync-dialog';card.setAttribute('role','dialog');card.setAttribute('aria-modal','true');
-   const title=document.createElement('h2');title.textContent='另一台设备已有更新';const copy=document.createElement('p');copy.textContent='这台设备的草稿已保留。选择要继续使用的进度；切换前也可以导出本机完整备份。';
+   const title=document.createElement('h2');title.textContent='另一台设备已有更新';const copy=document.createElement('p');copy.textContent='选择要保留的进度。本机草稿已备份。';
    const actions=document.createElement('div');actions.className='sync-actions';const cloud=document.createElement('button');cloud.className='primary';cloud.textContent='继续云端进度';
    cloud.onclick=()=>{this.backup(this.cache.json,'切换云端前的草稿');this.conflict=null;this.cache.revision=remote.revision;this.cache.pending=null;this.apply(remote.state);this.cache.dirty=false;this.persist();panel.hidden=true;this.lock(false);this.status('已同步');};
    const local=document.createElement('button');local.textContent='继续此设备进度';local.onclick=()=>{this.backup(JSON.stringify(remote.state),'替换前的云端存档');this.conflict=null;this.cache.revision=remote.revision;this.cache.pending=null;this.cache.dirty=true;this.persist();panel.hidden=true;this.lock(false);void this.flush();};

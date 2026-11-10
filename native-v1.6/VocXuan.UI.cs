@@ -148,7 +148,7 @@ public partial class ReaderWindow : Window {
         string key=(string)selected.Tag;if(!CanReplaceRound(key))return;
         var planned=engine.PlanWords(key,Math.Min(count,words.Count),shuffle.IsChecked==true);if(planned.Count==0){Alert("已全部掌握。取消“跳过已掌握”可再次检测整本词书。");return;}engine.Start(planned,selected.Content.ToString(),key);Begin();
     }
-    bool CanReplaceRound(string key){return engine.PendingRound(key)==null||Ask("这本词书上一轮未完成。开始新一轮？已测记录会保留。");}
+    bool CanReplaceRound(string key){return engine.PendingRound(key)==null||Ask("开始新一轮？未完成的本轮将结束，已测记录保留。");}
     static void Shuffle<T>(List<T> list){for(int i=list.Count-1;i>0;i--){int j=random.Next(i+1);T item=list[i];list[i]=list[j];list[j]=item;}}
     void Begin(){clock.Start(engine.Data.Round.Seconds);Test();Save();}
     void Resume(){Begin();}

@@ -18,7 +18,7 @@ public partial class ReaderWindow {
         dailyWords=Text("",23,Green,true);dailyWords.Name="DailyWords";dailyTime=Text("",23,Ink,true);dailyTime.Name="DailyTime";
         Place(values,dailyWords);Place(values,dailyTime,0,1);content.Children.Add(values);
         var captions=new Grid();captions.ColumnDefinitions.Add(new ColumnDefinition());captions.ColumnDefinitions.Add(new ColumnDefinition());
-        Place(captions,Text("学习词数 · 当日去重",11,Muted));Place(captions,Text("有效背词时长",11,Muted),0,1);content.Children.Add(captions);
+        Place(captions,Text("词数",11,Muted));Place(captions,Text("时长",11,Muted),0,1);content.Children.Add(captions);
         var card=Card(content,new Thickness(17,12,17,14));card.Margin=new Thickness(0,20,0,0);return card;
     }
     void UpdateDailyHome() {
@@ -36,8 +36,8 @@ public partial class ReaderWindow {
     void ShowDaily() {
         Halt();Save();Page("daily");
         var layout=new Grid();layout.RowDefinitions.Add(new RowDefinition {Height=GridLength.Auto});layout.RowDefinitions.Add(new RowDefinition {Height=GridLength.Auto});layout.RowDefinitions.Add(new RowDefinition());layout.RowDefinitions.Add(new RowDefinition {Height=GridLength.Auto});
-        var heading=Stack();heading.Children.Add(Text("每日学习记录",25,Ink,true));
-        var note=Text("新学和复习都计入，同日同词跨词书只算一个；撤销回退词数，已用时间保留。",13,Muted);note.Margin=new Thickness(0,8,0,16);heading.Children.Add(note);Place(layout,heading);
+        var heading=Stack();heading.Children.Add(Text("学习记录",25,Ink,true));
+        var note=Text("新学和复习都计入，同日同词跨词书只算一个；撤销回退词数，已用时间保留。",13,Muted);note.Margin=new Thickness(0,8,0,16);heading.ToolTip=note.Text;Place(layout,heading);
         Place(layout,DailyRow("日期","学习词数","有效时长",true),1);
         var rows=new StackPanel();
         foreach(var stats in engine.StudyHistory()) {
@@ -46,7 +46,7 @@ public partial class ReaderWindow {
             rows.Children.Add(new Border {Child=row,BorderBrush=Brush(Line),BorderThickness=new Thickness(0,0,0,1)});
         }
         Place(layout,new ScrollViewer {Content=rows,VerticalScrollBarVisibility=ScrollBarVisibility.Auto,HorizontalScrollBarVisibility=ScrollBarVisibility.Disabled},2);
-        var footer=Stack(18);footer.Children.Add(Text("从 "+engine.Data.DailyStartedOn+" 起记录。旧版存档缺少每日明细，不补算历史时长。",12,Muted));
+        var footer=Stack(18);footer.Children.Add(Text("从 "+engine.Data.DailyStartedOn+" 起记录",12,Muted));
         var back=Btn("返回首页",Home);back.Margin=new Thickness(0,12,0,0);back.HorizontalAlignment=HorizontalAlignment.Right;footer.Children.Add(back);Place(layout,footer,3);body.Children.Add(layout);
     }
     async Task QaDaily() {
