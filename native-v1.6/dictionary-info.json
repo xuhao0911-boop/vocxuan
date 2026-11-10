@@ -1,0 +1,16 @@
+{
+  "source": "https://github.com/skywind3000/ECDICT",
+  "commit": "bc015ed2e24a7abef49fc6dbbb7fe32c1dadaf8b",
+  "sha256": "1a6947e04785db63613a92e14903cdae7954f7e84860b10e68e5c7cbb3f9c3cf",
+  "entries": 59111,
+  "tags": {
+    "zk": 1601,
+    "gk": 3674,
+    "cet4": 3846,
+    "cet6": 5406,
+    "ky": 4801,
+    "toefl": 6974,
+    "gre": 7504,
+    "ielts": 5040
+  }
+}

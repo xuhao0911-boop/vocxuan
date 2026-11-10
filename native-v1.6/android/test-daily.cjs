@@ -1,0 +1,43 @@
+const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
+const C=require('./assets/core.js');
+const folder=process.argv[2]||path.resolve(__dirname,'../../checks/desktop');
+let checks=0;
+function test(value,label){assert.ok(value,label);checks++;}
+function close(a,b){return Math.abs(a-b)<1e-6;}
+const words=['world','bird','preserve'].map(Text=>({Text,Meaning:Text,Phonetic:'',Tags:'cet4 ielts',Rank:1}));
+let date=new Date(2026,10,4,23,59,58);
+const e=new C.Engine(words,null,()=>date);e.data.Imported=words;
+test(e.studyStatistics().words===0&&Object.keys(e.data.Daily).length===0,'new daily history is empty');
+e.start(words,'我的词书','import');e.rate(-1);test(e.studyStatistics().words===0,'invalid rating not counted');
+e.rate(0);e.rate(1);e.rate(2);test(e.studyStatistics().words===3&&e.studyStatistics().answers===3,'all ratings count');
+e.rate(0);test(e.studyStatistics().answers===3,'finished round not counted twice');
+e.start([words[0]],'生词本','review',true);e.rate(2);test(e.studyStatistics().words===3&&e.studyStatistics().answers===4,'cross-book repeats deduplicated');
+e.undo();test(e.studyStatistics().words===3&&e.studyStatistics().answers===3,'undo repeat retains first occurrence');
+e.start([{...words[0],Text:'WORLD'}],'另一本','other');e.rate(1);test(e.studyStatistics().words===3,'case-insensitive identity');e.undo();
+e.addStudyTime(date,5.25);test(close(e.studyStatistics('2026-11-04').seconds,2)&&close(e.studyStatistics('2026-11-05').seconds,3.25),'split midnight');
+e.addStudyTime(date,-1);e.addStudyTime(date,NaN);e.addStudyTime(date,Infinity);test(e.studyStatistics('2026-11-04').seconds===2,'invalid time rejected');
+e.start([words[2]],'我的词书','import');e.rate(2);date=new Date(2026,10,5,0,1);
+const restored=new C.Engine(words,JSON.parse(e.serialize()),()=>date);restored.undo();
+test(restored.studyStatistics('2026-11-04').words===3&&restored.studyStatistics('2026-11-04').answers===3&&restored.studyStatistics().words===0,'persisted undo adjusts original day');
+test(restored.studyStatistics().seconds===3.25,'undo retains effective time');
+restored.start([words[0]],'生词本','review',true);restored.rate(0);test(restored.studyStatistics().words===1,'same word next day counts again');
+test(restored.studyHistory()[0].date==='2026-11-05'&&restored.data.DailyStartedOn==='2026-11-04','history order and start date');
+const legacy={Version:5,Review:{},Imported:words,Round:{Book:'我的词书',BookKey:'import',Words:words,Answers:[{Word:words[0],Rating:1}],Seconds:5400}};
+const migrated=new C.Engine(words,legacy,()=>date);test(migrated.data.Round.Seconds===5400&&Object.keys(migrated.data.Daily).length===0,'legacy time preserved without invented daily data');
+migrated.start([words[1]],'生词本','review',true);migrated.rate(0);migrated.activate(migrated.saved('import'));migrated.undo();test(migrated.studyStatistics().words===1,'old answer undo does not deduct current day');
+let stamp=0;const origin=+new Date(2026,10,4,23,59,58),clockEngine=new C.Engine(words,null,()=>new Date(origin+stamp*1000));
+const timer=new C.Timer(()=>stamp,()=>new Date(origin+stamp*1000));timer.onElapsed=(start,seconds)=>clockEngine.addStudyTime(start,seconds);
+timer.start(100);stamp=100;test(timer.seconds===105&&clockEngine.studyStatistics('2026-11-04').seconds===2&&clockEngine.studyStatistics('2026-11-05').seconds===3,'late timer wake counts only initial five seconds');
+void timer.seconds;void timer.seconds;test(clockEngine.studyStatistics('2026-11-05').seconds===3,'repeated reads do not duplicate time');
+timer.activity();stamp=102;timer.toggle();stamp=150;timer.activity();test(timer.seconds===107&&clockEngine.studyStatistics('2026-11-05').seconds===5,'manual pause and idle excluded');
+timer.toggle();stamp=151;timer.stop();stamp=160;test(timer.seconds===108&&clockEngine.studyStatistics('2026-11-05').seconds===6,'background or navigation excludes elapsed time');
+timer.resume();stamp=161;test(timer.seconds===109&&clockEngine.studyStatistics('2026-11-05').seconds===7,'resume baseline not double counted');
+const desktop=new C.Engine(words,JSON.parse(fs.readFileSync(path.join(folder,'daily-desktop.json'),'utf8')),()=>date);
+test(desktop.studyStatistics('2026-11-04').words===3&&desktop.studyStatistics().words===1,'desktop daily statistics import');
+test(close(desktop.studyStatistics('2026-11-04').seconds,2)&&close(desktop.studyStatistics().seconds,3.25),'desktop duration retains precision');
+desktop.undo();test(desktop.studyStatistics().words===0&&desktop.studyStatistics('2026-11-04').words===3,'desktop answer date supports mobile undo');
+fs.writeFileSync(path.join(folder,'daily-mobile.json'),restored.serialize());
+// Exercise the original native timer behavior as well as statistics callbacks.
+let t=0;const oldTimer=new C.Timer(()=>t);oldTimer.start(10);t=4.9;test(close(oldTimer.seconds,14.9),'timer before idle');t=5.2;test(oldTimer.seconds===15&&oldTimer.idle,'timer idle boundary');
+t=50;test(oldTimer.seconds===15,'long idle excluded');oldTimer.activity();t=52;test(oldTimer.seconds===17,'activity resumes');oldTimer.toggle();t=100;oldTimer.activity();test(oldTimer.seconds===17&&oldTimer.manual,'manual pause survives input');
+console.log('PASS: '+checks+' Android daily, timing and desktop interchange checks.');
