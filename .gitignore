@@ -12,3 +12,14 @@ private/
 .openai/
 build/
 vocxuan-build/
+
+.canisxuan-data/
+.canisxuan-runtime/
+.catxuan-data/
+.catxuan-runtime/
+.expo/
+.web-export/
+*.tsbuildinfo
+progress.json
+imports.json
+google-drive-folder.json

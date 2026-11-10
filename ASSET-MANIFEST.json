@@ -1,0 +1,29 @@
+{
+  "format": "Compressed display assets; original artwork is retained locally.",
+  "images": [
+    {
+      "original": "native-v1.6/android/assets/logo.svg",
+      "deployed": "native-v1.6/android/assets/logo.svg",
+      "original_sha256": "1b06b0ffdc41df01dd8ec95aee13f1369e9cf6ab1ce59fcff4d99e796fffbebd",
+      "bytes": 1250
+    },
+    {
+      "original": "native-v1.6/android/res/drawable/launcher.png",
+      "deployed": "native-v1.6/android/res/drawable/launcher.png.webp",
+      "original_sha256": "ba9c3b2e4f690d4452a88e7aa80b8a8b1983449f3b6277b225096a6582c6a187",
+      "bytes": 4124
+    },
+    {
+      "original": "native-v1.6/reader.ico",
+      "deployed": "native-v1.6/reader.ico",
+      "original_sha256": "8ddb2fbbe52877c962c7696b27b55264e0c9c37da571e5808c69034fe0c86076",
+      "bytes": 15806
+    },
+    {
+      "original": "native-v1.6/vocxuan.ico",
+      "deployed": "native-v1.6/vocxuan.ico",
+      "original_sha256": "8f0d0f4fc7176eaaf7ca4416f861720050fb823f02d43b3b3b245cf831fa1143",
+      "bytes": 35164
+    }
+  ]
+}
